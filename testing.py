@@ -3,11 +3,30 @@ import random
 from PIL import Image, ImageTk
 from tkinter import messagebox
 
-
 root = Tk()
-root.title('BlackJack')
+root.title('Codemy.com - Card Deck')
 root.geometry("1200x800")
 root.configure(background="green")
+
+# Test for blackjack on shuffle
+def blackjack_shuffle(player):
+	if player == "dealer":
+		if len(dealer_score) == 2:
+			if dealer_score[0] + dealer_score[1] == 21:
+				messagebox.showinfo("Dealer Wins!", "Blackjack! Dealer Wins!")
+				# Disable buttons
+				card_button.config(state="disabled")
+				stand_button.config(state="disabled")
+
+
+	if player == "player":
+		if len(player_score) == 2:
+			if player_score[0] + player_score[1] == 21:
+				messagebox.showinfo("Player Wins!", "Blackjack! Player Wins!")
+				# Disable buttons
+				card_button.config(state="disabled")
+				stand_button.config(state="disabled")
+
 
 # Resize Cards
 def resize_cards(card):
@@ -24,27 +43,9 @@ def resize_cards(card):
 	# Return that card
 	return our_card_image
 
-# test for intial BlackJack
-def BlackJack_on_deal(hand):
-	if hand =="dealer":
-		if len(d_score) == 2:
-			if d_score[0] + d_score[1] == 21:
-				messagebox.showinfo("Dealer Wins", "Blackjack Dealer Wins!")
-				# Disable buttons
-				card_button.config(state="disabled")
-				stand_button.config(state="disabled")
-
-
-	if hand == "player":
-		if len(p_score) == 2:
-			if p_score[0] + p_score[1] == 21:
-				messagebox.showinfo("Player Wins", "Blackjack Player Wins!")
-				# Disable buttons
-				card_button.config(state="disabled")
-				stand_button.config(state="disabled")
-
 # Shuffle The Cards
 def shuffle():
+	# Enable buttons
 	card_button.config(state="normal")
 	stand_button.config(state="normal")
 	# Clear all the old cards from previous games
@@ -74,24 +75,25 @@ def shuffle():
 			deck.append(f'{value}_of_{suit}')
 
 	# Create our players
-	global dealer, player, dealer_spot, player_spot, d_score, p_score
+	global dealer, player, dealer_spot, player_spot, dealer_score, player_score
 	dealer = []
 	player = []
-	p_score=[]
-	d_score=[]
+	dealer_score = []
+	player_score = []
 	dealer_spot = 0
 	player_spot = 0
 
 
 
-	# Shuffle Cards for player and dealer
+	# Shuffle Two Cards for player and dealer
 	dealer_hit()
 	dealer_hit()
+
 	player_hit()
 	player_hit()
 
 	# Put number of remaining cards in title bar
-	root.title(f'BlackJack - {len(deck)} Cards Left')
+	root.title(f'Codemy.com - {len(deck)} Cards Left')
 
 def dealer_hit():
 	global dealer_spot
@@ -103,15 +105,15 @@ def dealer_hit():
 			deck.remove(dealer_card)
 			# Append Card To Dealer List
 			dealer.append(dealer_card)
-
-			#append to dealer score for face cards
+			# Append to dealer score list and convert facecards to 10 or 11
 			dcard = int(dealer_card.split("_", 1)[0])
 			if dcard == 14:
-				d_score.append(11)
+				dealer_score.append(11)
 			elif dcard == 11 or dcard == 12 or dcard == 13:
-				d_score.append(10)
+				dealer_score.append(10)
 			else:
-				d_score.append(dcard)
+				dealer_score.append(dcard)
+
 			# Output Card To Screen
 			global dealer_image1, dealer_image2, dealer_image3, dealer_image4, dealer_image5
 			
@@ -153,12 +155,13 @@ def dealer_hit():
 				dealer_spot += 1
 
 			# Put number of remaining cards in title bar
-			root.title(f'BlackJack - {len(deck)} Cards Left')
+			root.title(f'Codemy.com - {len(deck)} Cards Left')
 
 		except:
-			root.title(f'BlackJack - No Cards In Deck')
+			root.title(f'Codemy.com - No Cards In Deck')
 
-		BlackJack_on_deal("dealer")
+		# Check for blackjack
+		blackjack_shuffle("dealer")
 
 def player_hit():
 	global player_spot
@@ -168,18 +171,17 @@ def player_hit():
 			player_card = random.choice(deck)
 			# Remove Card From Deck
 			deck.remove(player_card)
-
 			# Append Card To Dealer List
 			player.append(player_card)
 
-			# append player score 
+			# Append to dealer score list and convert facecards to 10 or 11
 			pcard = int(player_card.split("_", 1)[0])
 			if pcard == 14:
-				p_score.append(11)
+				player_score.append(11)
 			elif pcard == 11 or pcard == 12 or pcard == 13:
-				p_score.append(10)
+				player_score.append(10)
 			else:
-				p_score.append(pcard)
+				player_score.append(pcard)
 
 			# Output Card To Screen
 			global player_image1, player_image2, player_image3, player_image4, player_image5
@@ -222,13 +224,13 @@ def player_hit():
 				player_spot += 1
 
 			# Put number of remaining cards in title bar
-			root.title(f'BlackJack - {len(deck)} Cards Left')
+			root.title(f'Codemy.com - {len(deck)} Cards Left')
 
 		except:
-			root.title(f'BlackJack - No Cards In Deck')
+			root.title(f'Codemy.com - No Cards In Deck')
 
-		BlackJack_on_deal("player")
-
+		# Check for blackjack
+		blackjack_shuffle("player")
 # Deal Out Cards
 def deal_cards():
 	try:
@@ -258,10 +260,10 @@ def deal_cards():
 
 
 		# Put number of remaining cards in title bar
-		root.title(f'BlackJack - {len(deck)} Cards Left')
+		root.title(f'Codemy.com - {len(deck)} Cards Left')
 
 	except:
-		root.title(f'BlackJack - No Cards In Deck')
+		root.title(f'Codemy.com - No Cards In Deck')
 
 
 
@@ -270,10 +272,10 @@ my_frame = Frame(root, bg="green")
 my_frame.pack(pady=20)
 
 # Create Frames For Cards
-dealer_frame = LabelFrame(my_frame, text="Dealer Score = ?", bd=0)
+dealer_frame = LabelFrame(my_frame, text="Dealer", bd=0)
 dealer_frame.pack(padx=20, ipadx=20)
 
-player_frame = LabelFrame(my_frame, text="Player Score = ", bd=0)
+player_frame = LabelFrame(my_frame, text="Player", bd=0)
 player_frame.pack(ipadx=20, pady=10)
 
 # Put Dealer cards in frames
@@ -308,35 +310,20 @@ player_label_4.grid(row=1, column=3, pady=20, padx=20)
 player_label_5 = Label(player_frame, text='')
 player_label_5.grid(row=1, column=4, pady=20, padx=20)
 
-# Create Frame for buttons
+# Create Button Frame
 button_frame = Frame(root, bg="green")
 button_frame.pack(pady=20)
 
 # Create a couple buttons
-shuffle_button = Button(button_frame, text="Shuffle", font=("Times New Roman", 14), command=shuffle)
+shuffle_button = Button(button_frame, text="Shuffle Deck", font=("Helvetica", 14), command=shuffle)
 shuffle_button.grid(row=0, column=0)
 
-card_button = Button(button_frame, text="Hit", font=("Times New Roman", 14), command=player_hit)
+card_button = Button(button_frame, text="Hit Me!", font=("Helvetica", 14), command=player_hit)
 card_button.grid(row=0, column=1, padx=10)
 
-stand_button = Button(button_frame, text="Stand", font=("Times New Roman", 14))
+stand_button = Button(button_frame, text="Stand!", font=("Helvetica", 14))
 stand_button.grid(row=0, column=2)
 
-#frame for betting buttons
-bet_frame = Frame(root, bg="green")
-bet_frame.pack(pady=20)
-
-increase_bet = Button(bet_frame, text="+", font=("Times New Roman", 14))
-increase_bet.grid(row=1, column=3)
-
-decrease_bet = Button(bet_frame, text="-", font=("Times New Roman", 14))
-decrease_bet.grid(row=1, column=1)
-
-bet_amount= Label(bet_frame, text='$0', font=("Times New Roman", 16))
-bet_amount.grid(row=1, column=2, padx=5)
-
-bet_button = Button(bet_frame, text="Place Bet", font=("Times New Roman", 14)) #, command=place_bet)
-bet_button.grid(row=2, column=2)
 
 
 # Shuffle Deck On Start
