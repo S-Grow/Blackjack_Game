@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 
 
 root = Tk()
-root.title('Black Jack')
+root.title('BlackJack')
 root.geometry("1200x800")
 root.configure(background="green")
 
@@ -60,10 +60,9 @@ def shuffle():
 
 
 
-	# Shuffle Two Cards for player and dealer
+	# Shuffle Cards for player and dealer
 	dealer_hit()
 	dealer_hit()
-
 	player_hit()
 	player_hit()
 
@@ -224,10 +223,10 @@ my_frame = Frame(root, bg="green")
 my_frame.pack(pady=20)
 
 # Create Frames For Cards
-dealer_frame = LabelFrame(my_frame, text="Dealer", bd=0)
+dealer_frame = LabelFrame(my_frame, text="Dealer Score = ?", bd=0)
 dealer_frame.pack(padx=20, ipadx=20)
 
-player_frame = LabelFrame(my_frame, text="Player", bd=0)
+player_frame = LabelFrame(my_frame, text="Player Score = ", bd=0)
 player_frame.pack(ipadx=20, pady=10)
 
 # Put Dealer cards in frames
@@ -267,7 +266,7 @@ button_frame = Frame(root, bg="green")
 button_frame.pack(pady=20)
 
 # Create a couple buttons
-shuffle_button = Button(button_frame, text="Shuffle Deck", font=("Times New Roman", 14), command=shuffle)
+shuffle_button = Button(button_frame, text="Shuffle", font=("Times New Roman", 14), command=shuffle)
 shuffle_button.grid(row=0, column=0)
 
 card_button = Button(button_frame, text="Hit", font=("Times New Roman", 14), command=player_hit)
@@ -276,10 +275,21 @@ card_button.grid(row=0, column=1, padx=10)
 stand_button = Button(button_frame, text="Stand", font=("Times New Roman", 14))
 stand_button.grid(row=0, column=2)
 
+#frame for betting buttons
 bet_frame = Frame(root, bg="green")
 bet_frame.pack(pady=20)
 
+increase_bet = Button(bet_frame, text="+", font=("Times New Roman", 14))
+increase_bet.grid(row=1, column=3)
 
+decrease_bet = Button(bet_frame, text="-", font=("Times New Roman", 14))
+decrease_bet.grid(row=1, column=1)
+
+bet_amount= Label(bet_frame, text='$0', font=("Times New Roman", 16))
+bet_amount.grid(row=1, column=2, padx=5)
+
+bet_button = Button(bet_frame, text="Place Bet", font=("Times New Roman", 14)) #, command=place_bet)
+bet_button.grid(row=2, column=2)
 
 
 # Shuffle Deck On Start
