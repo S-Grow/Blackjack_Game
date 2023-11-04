@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: pywidgets
+Version: 0.0.1
+Summary: Lightweight utility package for common computer vision tasks.
+Author: Emam_ahsour
+Author-email: emam54637@gmail.com
+Keywords: python,tkinter,tools,pywidgets,widgets,tkinter widgets
+Classifier: Development Status :: 1 - Planning
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: Microsoft :: Windows
+Requires-Dist: cv-imutils
+Requires-Dist: pykeyboard-input
+Requires-Dist: langdetect
+Requires-Dist: gTTS
+Requires-Dist: pyperclip
+
+A series of convenience functions to make basic image processing functions such as translation, rotation, resizing, skeletonization, displaying Matplotlib images, sorting contours, detecting edges, and much more easier with OpenCV and both Python 2.7 and Python 3.
