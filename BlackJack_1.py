@@ -11,42 +11,87 @@ root.configure(background="green")
 
 # Resize Cards
 def resize_cards(card):
-	# Open the image
+	# Opens the image
 	our_card_img = Image.open(card)
 
-	# Resize The Image
+	# Resize
 	our_card_resize_image = our_card_img.resize((150, 218))
 	
 	# output the card
 	global our_card_image
 	our_card_image = ImageTk.PhotoImage(our_card_resize_image)
 
-	# Return that card
+	# Returns card
 	return our_card_image
 
 # test for intial BlackJack
 def BlackJack_on_deal(hand):
+	global p_total, d_total
+	#resets running total
+	p_total = 0
+	d_total = 0
+
 	if hand =="dealer":
 		if len(d_score) == 2:
 			if d_score[0] + d_score[1] == 21:
-				messagebox.showinfo("Dealer Wins", "Blackjack Dealer Wins!")
-				# Disable buttons
-				card_button.config(state="disabled")
-				stand_button.config(state="disabled")
+				
+				win_status["dealer"] = "yes"
 
 
 	if hand == "player":
 		if len(p_score) == 2:
 			if p_score[0] + p_score[1] == 21:
-				messagebox.showinfo("Player Wins", "Blackjack Player Wins!")
-				# Disable buttons
-				card_button.config(state="disabled")
-				stand_button.config(state="disabled")
+				
+				win_status["player"] = "yes"
+		else:
+			# Loop thru player score list and add up cards
+			for score in p_score:
+				# Add up score
+				p_total += score
+				if p_total == 21:
+					win_status["player"] = "yes"
+				elif p_total > 21:
+					win_status["player"] = "bust"
+
+	if len(d_score) == 2 and len(p_score) == 2:
+		# Check For a Tie
+		if win_status["dealer"] == "yes" and win_status["player"] == "yes":
+			#tie
+			messagebox.showinfo("Push!", "both hands are BlackJack pushed!")
+			hit_button.config(state="disabled")
+			stand_button.config(state="disabled")
+		
+		# Check for Dealer Win
+		elif win_status["dealer"] == "yes":
+			messagebox.showinfo("Dealer Wins", "Oh No! Dealer got BlackJack!")
+			# Disable buttons
+			hit_button.config(state="disabled")
+			stand_button.config(state="disabled")
+
+		# Check For Player Win
+		elif win_status["player"] == "yes":
+			messagebox.showinfo("Player Wins", "Blackjack! You Win!")
+			# Disable buttons
+			hit_button.config(state="disabled")
+			stand_button.config(state="disabled")
+
+		
+
 
 # Shuffle The Cards
 def shuffle():
-	card_button.config(state="normal")
+	#reenable buttons
+	hit_button.config(state="normal")
 	stand_button.config(state="normal")
+
+	global win_status, p_total, d_total
+	
+	win_status = {"dealer":"no", "player":"no"}
+
+	#real time total of cards
+	p_total = 0
+	d_total = 0
+
 	# Clear all the old cards from previous games
 	dealer_label_1.config(image='')
 	dealer_label_2.config(image='')
@@ -241,8 +286,7 @@ def deal_cards():
 		# Output Card To Screen
 		global dealer_image
 		dealer_image = resize_cards(f'images/cards/{card}.png')
-		dealer_label.config(image=dealer_image)
-		#dealer_label.config(text=card)
+		
 
 		# Get the player Card
 		card = random.choice(deck)
@@ -253,8 +297,7 @@ def deal_cards():
 		# Output Card To Screen
 		global player_image
 		player_image = resize_cards(f'images/cards/{card}.png')
-		player_label.config(image=player_image)
-		#player_label.config(text=card)
+		
 
 
 		# Put number of remaining cards in title bar
@@ -270,7 +313,7 @@ my_frame = Frame(root, bg="green")
 my_frame.pack(pady=20)
 
 # Create Frames For Cards
-dealer_frame = LabelFrame(my_frame, text="Dealer Score = ?", bd=0)
+dealer_frame = LabelFrame(my_frame, text="Dealer Score = ", bd=0)
 dealer_frame.pack(padx=20, ipadx=20)
 
 player_frame = LabelFrame(my_frame, text="Player Score = ", bd=0)
@@ -312,12 +355,12 @@ player_label_5.grid(row=1, column=4, pady=20, padx=20)
 button_frame = Frame(root, bg="green")
 button_frame.pack(pady=20)
 
-# Create a couple buttons
+# Create action buttons
 shuffle_button = Button(button_frame, text="Shuffle", font=("Times New Roman", 14), command=shuffle)
 shuffle_button.grid(row=0, column=0)
 
-card_button = Button(button_frame, text="Hit", font=("Times New Roman", 14), command=player_hit)
-card_button.grid(row=0, column=1, padx=10)
+hit_button = Button(button_frame, text="Hit", font=("Times New Roman", 14), command=player_hit)
+hit_button.grid(row=0, column=1, padx=10)
 
 stand_button = Button(button_frame, text="Stand", font=("Times New Roman", 14))
 stand_button.grid(row=0, column=2)
