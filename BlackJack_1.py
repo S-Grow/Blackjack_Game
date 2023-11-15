@@ -7,7 +7,7 @@ from tkinter import messagebox
 root = Tk()
 root.title('BlackJack')
 root.geometry("1200x800")
-root.configure(background="green")
+root.configure(background="dark green")
 
 # Resize Cards
 def resize_cards(card):
@@ -309,18 +309,20 @@ def deal_cards():
 
 
 
-my_frame = Frame(root, bg="green")
+my_frame = Frame(root, bg="dark green")
 my_frame.pack(pady=20)
 
 # Create Frames For Cards
-dealer_frame = LabelFrame(my_frame, text="Dealer Score = ", bd=0)
+dealer_frame = LabelFrame(my_frame, text="Dealer ", bd=0)
 dealer_frame.pack(padx=20, ipadx=20)
 
-player_frame = LabelFrame(my_frame, text="Player Score = ", bd=0)
+x = 1 #frames will need to be moved to update for score as it changes or new frame spesfic to scores need to be created
+y = 1
+player_frame = LabelFrame(my_frame, text=(f"Player Score = {x} + {y} "), bd=0)
 player_frame.pack(ipadx=20, pady=10)
 
 # Put Dealer cards in frames
-dealer_label_1 = Label(dealer_frame, text='')
+dealer_label_1 = Label(dealer_frame, text='',)
 dealer_label_1.grid(row=0, column=0, pady=20, padx=20)
 
 dealer_label_2 = Label(dealer_frame, text='')
@@ -352,8 +354,8 @@ player_label_5 = Label(player_frame, text='')
 player_label_5.grid(row=1, column=4, pady=20, padx=20)
 
 # Create Frame for buttons
-button_frame = Frame(root, bg="green")
-button_frame.pack(pady=20)
+button_frame = Frame(root,bg="dark green")
+button_frame.pack(pady=15)
 
 # Create action buttons
 shuffle_button = Button(button_frame, text="Shuffle", font=("Times New Roman", 14), command=shuffle)
@@ -366,7 +368,7 @@ stand_button = Button(button_frame, text="Stand", font=("Times New Roman", 14))
 stand_button.grid(row=0, column=2)
 
 #frame for betting buttons
-bet_frame = Frame(root, bg="green")
+bet_frame = Frame(root, bg="dark green")
 bet_frame.pack(pady=20)
 
 increase_bet = Button(bet_frame, text="+", font=("Times New Roman", 14))
