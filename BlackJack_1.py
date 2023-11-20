@@ -24,23 +24,25 @@ def resize_cards(card):
 	# Returns card
 	return our_card_image
 
+
 # test for intial BlackJack
-def BlackJack_on_deal(hand):
+def BlackJack_Check(hand):
 	global p_total, d_total
 	#resets running total
 	p_total = 0
 	d_total = 0
 
+
 	if hand =="dealer":
 		if len(d_score) == 2:
-			if d_score[0] + d_score[1] == 21:
+			if sum(d_score)== 21:
 				
 				win_status["dealer"] = "yes"
 
 
 	if hand == "player":
 		if len(p_score) == 2:
-			if p_score[0] + p_score[1] == 21:
+			if sum(p_score) == 21:
 				
 				win_status["player"] = "yes"
 		else:
@@ -62,20 +64,35 @@ def BlackJack_on_deal(hand):
 			stand_button.config(state="disabled")
 		
 		# Check for Dealer Win
-		elif win_status["dealer"] == "yes":
+	if win_status["dealer"] == "yes":
 			messagebox.showinfo("Dealer Wins", "Oh No! Dealer got BlackJack!")
 			# Disable buttons
 			hit_button.config(state="disabled")
 			stand_button.config(state="disabled")
 
 		# Check For Player Win
-		elif win_status["player"] == "yes":
+	if win_status["player"] == "yes":
 			messagebox.showinfo("Player Wins", "Blackjack! You Win!")
 			# Disable buttons
 			hit_button.config(state="disabled")
 			stand_button.config(state="disabled")
 
+	if win_status["player"] == "bust":
+			messagebox.showinfo("Player Bust", "You Bust, You Lose!")
+			# Disable buttons
+			hit_button.config(state="disabled")
+			stand_button.config(state="disabled")
+
+#def BlackJack_inital(hand):
+	#if hand =="dealer":
+		#if len(d_score) == 2:
+		#	BlackJack_Check(hand)
 		
+	#if hand == "player":
+		#if len(p_score) == 2:
+			#BlackJack_Check(hand)
+
+	
 
 
 # Shuffle The Cards
@@ -203,7 +220,7 @@ def dealer_hit():
 		except:
 			root.title(f'BlackJack - No Cards In Deck')
 
-		BlackJack_on_deal("dealer")
+		BlackJack_Check("dealer")
 
 def player_hit():
 	global player_spot
@@ -225,6 +242,8 @@ def player_hit():
 				p_score.append(10)
 			else:
 				p_score.append(pcard)
+
+			
 
 			# Output Card To Screen
 			global player_image1, player_image2, player_image3, player_image4, player_image5
@@ -272,7 +291,7 @@ def player_hit():
 		except:
 			root.title(f'BlackJack - No Cards In Deck')
 
-		BlackJack_on_deal("player")
+		BlackJack_Check("player")
 
 # Deal Out Cards
 def deal_cards():
