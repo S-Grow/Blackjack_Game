@@ -150,7 +150,7 @@ def stand():
 	global p_total, d_total
 	p_total = 0
 	d_total = 0
-
+	messagebox.showinfo("Stand?", "PlaceHolder_txt")
 
 # Shuffle The Cards
 def shuffle():
