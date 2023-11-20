@@ -24,8 +24,11 @@ def resize_cards(card):
 	# Returns card
 	return our_card_image
 
+def flip_first_card():
+	dealer_image1 = resize_cards(f'images/cards/{first_dealer_card}.png')
+	# Output Card To Screen
+	dealer_label_1.config(image=dealer_image1)
 
-# test for intial BlackJack
 def BlackJack_Check(hand):
 	global p_total, d_total
 	#resets running total
@@ -45,15 +48,38 @@ def BlackJack_Check(hand):
 			if sum(p_score) == 21:
 				
 				win_status["player"] = "yes"
+
 		else:
 			# Loop thru player score list and add up cards
 			for score in p_score:
 				# Add up score
 				p_total += score
-				if p_total == 21:
-					win_status["player"] = "yes"
-				elif p_total > 21:
-					win_status["player"] = "bust"
+
+			if p_total == 21:
+				win_status["player"] = "yes"
+			
+			elif p_total > 21:
+				# Check for ace conversion
+				for card_num, card in enumerate(p_score):
+					if card == 11:
+						p_score[card_num] = 1
+
+						# Clear player total and recalculate
+						p_total = 0
+						for score in p_score:
+							# Add up score
+							p_total += score
+						
+						# Check for over 21
+						if p_total > 21:
+							win_status["player"] = "bust"
+				else:
+					# Check new totals for 21 or over 21
+					if p_total == 21:
+						win_status["player"] = "yes"
+					if p_total > 21:
+						win_status["player"] = "bust"
+
 
 	if len(d_score) == 2 and len(p_score) == 2:
 		# Check For a Tie
@@ -62,37 +88,68 @@ def BlackJack_Check(hand):
 			messagebox.showinfo("Push!", "both hands are BlackJack pushed!")
 			hit_button.config(state="disabled")
 			stand_button.config(state="disabled")
+			flip_first_card()
+			
 		
 		# Check for Dealer Win
-	if win_status["dealer"] == "yes":
+		elif win_status["dealer"] == "yes":
 			messagebox.showinfo("Dealer Wins", "Oh No! Dealer got BlackJack!")
 			# Disable buttons
 			hit_button.config(state="disabled")
 			stand_button.config(state="disabled")
+			# Resize Card
+			flip_first_card()
 
 		# Check For Player Win
-	if win_status["player"] == "yes":
+		elif win_status["player"] == "yes":
 			messagebox.showinfo("Player Wins", "Blackjack! You Win!")
 			# Disable buttons
 			hit_button.config(state="disabled")
 			stand_button.config(state="disabled")
+			flip_first_card()
 
-	if win_status["player"] == "bust":
-			messagebox.showinfo("Player Bust", "You Bust, You Lose!")
+	
+	else:
+		if win_status["dealer"] == "yes" and win_status["player"] == "yes":
+			#tie
+			messagebox.showinfo("Push!", "both hands are equal pushed!")
+			hit_button.config(state="disabled")
+			stand_button.config(state="disabled")
+			flip_first_card()
+		
+		# Check for Dealer Win
+		
+		#elif win_status["dealer"] == "yes":
+			#messagebox.showinfo("Dealer Wins", "Oh No! Dealer got 21!")
+			# Disable buttons
+			#hit_button.config(state="disabled")
+			#stand_button.config(state="disabled")
+			# Resize Card
+			#dealer_image1 = resize_cards(f'images/cards/{first_dealer_card}.png')#need to find a way to show the actual card
+			# Output Card To Screen
+			#dealer_label_1.config(image=dealer_image1)
+		
+
+		# Check For Player Win
+		elif win_status["player"] == "yes":
+			messagebox.showinfo("Player Wins", "21! You Win!")
 			# Disable buttons
 			hit_button.config(state="disabled")
 			stand_button.config(state="disabled")
+			flip_first_card()
 
-#def BlackJack_inital(hand):
-	#if hand =="dealer":
-		#if len(d_score) == 2:
-		#	BlackJack_Check(hand)
-		
-	#if hand == "player":
-		#if len(p_score) == 2:
-			#BlackJack_Check(hand)
+	if win_status["player"] == "bust":
+			messagebox.showinfo("Player Bust", f"You Bust, You Lose! {p_total}!")
+			# Disable buttons
+			hit_button.config(state="disabled")
+			stand_button.config(state="disabled")
+			flip_first_card()
 
-	
+
+def stand():
+	global p_total, d_total
+	p_total = 0
+	d_total = 0
 
 
 # Shuffle The Cards
@@ -175,12 +232,15 @@ def dealer_hit():
 			else:
 				d_score.append(dcard)
 			# Output Card To Screen
-			global dealer_image1, dealer_image2, dealer_image3, dealer_image4, dealer_image5
+			global first_dealer_card,dealer_image1, dealer_image2, dealer_image3, dealer_image4, dealer_image5
 			
 			
 			if dealer_spot == 0:
 				# Resize Card
-				dealer_image1 = resize_cards(f'images/cards/{dealer_card}.png')
+				first_dealer_card=dealer_card
+				dealer_image1 = resize_cards(f'images/cards/back_of_card.png')
+				#dealer_image1 = resize_cards(f'images/cards/{first_dealer_card}.png')
+				
 				# Output Card To Screen
 				dealer_label_1.config(image=dealer_image1)
 				# Increment our player spot counter
@@ -383,7 +443,7 @@ shuffle_button.grid(row=0, column=0)
 hit_button = Button(button_frame, text="Hit", font=("Times New Roman", 14), command=player_hit)
 hit_button.grid(row=0, column=1, padx=10)
 
-stand_button = Button(button_frame, text="Stand", font=("Times New Roman", 14))
+stand_button = Button(button_frame, text="Stand", font=("Times New Roman", 14), command=stand)
 stand_button.grid(row=0, column=2)
 
 #frame for betting buttons
