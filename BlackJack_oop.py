@@ -109,3 +109,11 @@ class Deck():
                 self.startingDeckList.append(oCard)
 
         self.shuffle()
+
+class Game():
+    CARD_OFFSET = 110
+    CARDS_TOP = 300
+    CARDS_LEFT = 75
+    NCARDS = 8
+    POINTS_CORRECT = 15
+    POINTS_INCORRECT = 10
