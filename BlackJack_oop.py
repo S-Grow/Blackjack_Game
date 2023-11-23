@@ -26,7 +26,7 @@ class Card():#example
         
 
 
-    def shuffle():
+def shuffle():
     #reenable buttons
     hit_button.config(state="normal")
     
