@@ -47,7 +47,17 @@ class BlackjackGame:
     def __init__(self, root):
         self.root = root
         self.root.title('BlackJack')
-        self.root.geometry("1200x800")
+        #self.root.geometry("1200x800")
+        #self.root.configure(background="dark green")
+         # Set window size based on screen resolution
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        window_width = int(screen_width * 0.8)
+        window_height = int(screen_height * 0.8)
+        window_position_x = (screen_width - window_width) // 2
+        window_position_y = (screen_height - window_height) // 2
+        self.root.geometry(f"{window_width}x{window_height}+{window_position_x}+{window_position_y}")
+
         self.root.configure(background="dark green")
 
         self.deck = None
@@ -135,13 +145,14 @@ class BlackjackGame:
         return our_card_image
 
     def update_card_images(self):
-        for i in range(self.dealer_spot):
-            if i == 0 and not self.blackjack_occurred:
-                dealer_image = self.resize_cards(f'images/cards/back_of_card.png')
-            else:
-                dealer_card = self.dealer.hand[i - 1]
-                dealer_image = self.resize_cards(f'images/cards/{dealer_card}.png')
-            self.dealer_labels[i].config(image=dealer_image)
+       for i in range(self.dealer_spot):
+        if i == 0 and not self.blackjack_occurred:
+            dealer_image = self.resize_cards('images/cards/back_of_card.png')
+        else:
+            dealer_card = self.dealer.hand[i]
+            dealer_image = self.resize_cards(f'images/cards/{dealer_card}.png')
+        self.dealer_labels[i].config(image=dealer_image)
+
 
         for i in range(self.player_spot):
             player_card = self.player.hand[i]
@@ -224,9 +235,11 @@ class BlackjackGame:
 
                 if self.dealer_spot == 0:
                     self.first_dealer_card = dealer_card
-                    self.dealer_image1 = self.resize_cards(f'images/cards/back_of_card.png')
+                    self.dealer_image1 = self.resize_cards('images/cards/back_of_card.png')
                     self.dealer_labels[0].config(image=self.dealer_image1)
                     self.dealer_spot += 1
+
+                
                 else:
                     dealer_image = self.resize_cards(f'images/cards/{dealer_card}.png')
                     self.dealer_labels[self.dealer_spot].config(image=dealer_image)
@@ -255,16 +268,17 @@ class BlackjackGame:
                 self.root.title(f'BlackJack - No Cards In Deck')
 
             self.BlackJack_Check("player")
+            self.check_five_cards_winner()
 
     def check_winner(self):
         p_total = self.player.calculate_score()
 
         if p_total == 21:
-            messagebox.showinfo("Player Wins", "Blackjack! You Win!")
+            messagebox.showinfo("Player Wins", "your hand is higher! You Win!")
         elif p_total > 21:
             messagebox.showinfo("Player Bust", f"You Bust, You Lose! {p_total}!")
         elif self.dealer.calculate_score() == 21:
-            messagebox.showinfo("Dealer Wins", "Oh No! Dealer got Blackjack!")
+            messagebox.showinfo("Dealer Wins", "Oh No! Dealers hand is better!")
         elif self.dealer.calculate_score() > 21:
             messagebox.showinfo("Dealer Bust", "Dealer Busts! You Win!")
         elif self.dealer.calculate_score() > p_total:
@@ -274,6 +288,7 @@ class BlackjackGame:
         else:
             messagebox.showinfo("Push!", "It's a push! Nobody wins.")
 
+       
         self.update_scores()
 
     def update_scores(self):
@@ -284,7 +299,13 @@ class BlackjackGame:
         dealer_score = self.dealer.calculate_score()
         self.dealer_score_label.config(text=f"Score: {dealer_score}")
 
+    def check_five_cards_winner(self):
+        if self.player_spot == 5 and self.player.calculate_score() < 21:
+            messagebox.showinfo("Player Wins", "You have 5 cards and your score is less than 21. You Win!")
+            self.hit_button.config(state="disabled")
+            self.stand_button.config(state="disabled")
+            self.flip_first_card()
+
 root = Tk()
 game = BlackjackGame(root)
 root.mainloop()
-

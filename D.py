@@ -15,7 +15,6 @@ class Deck:
             raise IndexError("No cards left in the deck")
         return self.cards.pop()
 
-
 class Player:
     def __init__(self):
         self.hand = []
@@ -34,7 +33,6 @@ class Player:
     def calculate_score(self):
         score = sum(self.score)
         if score > 21 and 11 in self.score:
-            # Convert one Ace from 11 to 1
             ace_index = self.score.index(11)
             self.score[ace_index] = 1
             score = sum(self.score)
@@ -45,12 +43,46 @@ class Player:
             ace_index = self.score.index(11)
             self.score[ace_index] = 1
 
+class TitleScreen:
+    def __init__(self, root, on_start_game):
+        self.root = root
+        self.on_start_game = on_start_game
+
+        self.root.title('BlackJack - Title Screen')
+
+        # Fullscreen
+        #self.root.attributes('-fullscreen', True)
+
+        self.title_frame = Frame(self.root, bg="dark green")
+        self.title_frame.pack(expand=True, fill=BOTH)
+
+        title_label = Label(self.title_frame, text="BlackJack", font=("Times New Roman", 36, "bold"), bg="dark green", fg="white")
+        title_label.pack(pady=20)
+
+        start_button = Button(self.title_frame, text="Start Game", font=("Times New Roman", 18), command=self.start_game)
+        start_button.pack()
+
+    def start_game(self):
+        self.title_frame.destroy()
+        self.on_start_game()
 
 class BlackjackGame:
     def __init__(self, root):
         self.root = root
+        self.title_screen = TitleScreen(root, self.setup_game)
+
+    def setup_game(self):
         self.root.title('BlackJack')
-        self.root.geometry("1200x800")
+
+        # Set window size based on screen resolution
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        window_width = int(screen_width * 0.8)
+        window_height = int(screen_height * 0.8)
+        window_position_x = (screen_width - window_width) // 2
+        window_position_y = (screen_height - window_height) // 2
+        self.root.geometry(f"{window_width}x{window_height}+{window_position_x}+{window_position_y}")
+
         self.root.configure(background="dark green")
 
         self.deck = None
@@ -59,44 +91,42 @@ class BlackjackGame:
         self.dealer_spot = 0
         self.player_spot = 0
         self.win_status = {"dealer": "no", "player": "no"}
-        self.blackjack_occurred = False  # Added variable for blackjack
+        self.blackjack_occurred = False
 
         self.create_frames()
         self.create_buttons()
         self.shuffle()
 
     def create_frames(self):
-        # Frame for cards
         self.my_frame = Frame(self.root, bg="dark green")
         self.my_frame.pack(pady=20)
 
-        # Dealer frame
-        self.dealer_frame = LabelFrame(self.my_frame, text="Dealer ", bd=0)
+        self.dealer_frame = LabelFrame(self.my_frame, text="Dealer", bd=0)
         self.dealer_frame.pack(padx=20, ipadx=20)
 
-        # Player frame
-        self.player_frame = LabelFrame(self.my_frame, text="Player Score = 0", bd=0)
+        self.player_frame = LabelFrame(self.my_frame, text="Player", bd=0)
         self.player_frame.pack(ipadx=20, pady=10)
 
-        # Put Dealer cards in frames
         self.dealer_labels = [Label(self.dealer_frame, text='') for _ in range(5)]
         for i, label in enumerate(self.dealer_labels):
-            label.grid(row=0, column=i, pady=20, padx=20)
+            label.grid(row=1, column=i, pady=20, padx=20)
 
-        # Put Player cards in frames
         self.player_labels = [Label(self.player_frame, text='') for _ in range(5)]
         for i, label in enumerate(self.player_labels):
             label.grid(row=1, column=i, pady=20, padx=20)
 
-        # Keep a reference to the images
         self.card_images = []
 
+        self.player_score_label = Label(self.player_frame, text="Score: 0", font=("Times New Roman", 12), bg="dark green", fg="white")
+        self.player_score_label.grid(row=0, column=0, padx=10, pady=10)
+
+        self.dealer_score_label = Label(self.dealer_frame, text=f"Score: 0", font=("Times New Roman", 12), bg="dark green", fg="white")
+        self.dealer_score_label.grid(row=0, column=0, padx=10, pady=10)
+
     def create_buttons(self):
-        # Frame for buttons
         self.button_frame = Frame(self.root, bg="dark green")
         self.button_frame.pack(pady=15)
 
-        # Action buttons
         self.shuffle_button = Button(self.button_frame, text="Shuffle", font=("Times New Roman", 14), command=self.shuffle)
         self.shuffle_button.grid(row=0, column=0)
 
@@ -107,40 +137,32 @@ class BlackjackGame:
         self.stand_button.grid(row=0, column=2)
 
     def shuffle(self):
-        # Reset variables and clear old cards
         self.deck = Deck()
         self.dealer = Player()
         self.player = Player()
         self.win_status = {"dealer": "no", "player": "no"}
-        self.blackjack_occurred = False  # Reset blackjack variable
+        self.blackjack_occurred = False
         self.clear_cards()
 
-        # Deal initial cards
         self.dealer_hit()
         self.player_hit()
         self.dealer_hit()
         self.player_hit()
 
-        # Re-enable buttons
         self.hit_button.config(state="normal")
         self.stand_button.config(state="normal")
 
-        # Update title with remaining cards
         self.root.title(f'BlackJack - {len(self.deck.cards)} Cards Left')
-
-        # Update card images
         self.update_card_images()
 
     def clear_cards(self):
         for label in self.dealer_labels + self.player_labels:
             label.config(image='')
 
-        # Reset counters
         self.dealer_spot = 0
         self.player_spot = 0
 
     def resize_cards(self, card):
-        # Resize cards
         our_card_img = Image.open(card)
         our_card_resize_image = our_card_img.resize((150, 218))
         our_card_image = ImageTk.PhotoImage(our_card_resize_image)
@@ -148,17 +170,14 @@ class BlackjackGame:
         return our_card_image
 
     def update_card_images(self):
-        # Update dealer card images
         for i in range(self.dealer_spot):
             if i == 0 and not self.blackjack_occurred:
-                dealer_image = self.resize_cards(f'images/cards/back_of_card.png')
-                
+                dealer_image = self.resize_cards('images/cards/back_of_card.png')
             else:
-                dealer_card = self.dealer.hand[i - 1]
+                dealer_card = self.dealer.hand[i]
                 dealer_image = self.resize_cards(f'images/cards/{dealer_card}.png')
             self.dealer_labels[i].config(image=dealer_image)
 
-        # Update player card images
         for i in range(self.player_spot):
             player_card = self.player.hand[i]
             player_image = self.resize_cards(f'images/cards/{player_card}.png')
@@ -173,7 +192,7 @@ class BlackjackGame:
         if hand == "dealer":
             if len(self.dealer.score) == 2 and sum(self.dealer.score) == 21:
                 self.win_status["dealer"] = "yes"
-                self.blackjack_occurred = True  # Set the variable when blackjack occurs
+                self.blackjack_occurred = True
         elif hand == "player":
             if len(self.player.score) == 2 and sum(self.player.score) == 21:
                 self.win_status["player"] = "yes"
@@ -194,59 +213,54 @@ class BlackjackGame:
 
         if len(self.dealer.score) == 2 and len(self.player.score) == 2:
             if self.win_status["dealer"] == "yes" and self.win_status["player"] == "yes":
-                messagebox.showinfo("Push!", "both hands are equal pushed!")
+                messagebox.showinfo("Push!", "Both hands are equal pushed!")
                 self.hit_button.config(state="disabled")
                 self.stand_button.config(state="disabled")
-                self.flip_first_card()  # Call flip_first_card here
+                self.flip_first_card()
             elif self.win_status["dealer"] == "yes":
-                messagebox.showinfo("Dealer Wins", "Oh No! Dealer got BlackJack!")
+                messagebox.showinfo("Dealer Wins", "Oh No! Dealer got Blackjack!")
                 self.hit_button.config(state="disabled")
                 self.stand_button.config(state="disabled")
-                self.flip_first_card()  # Call flip_first_card here
+                self.flip_first_card()
             elif self.win_status["player"] == "yes":
                 messagebox.showinfo("Player Wins", "Blackjack! You Win!")
                 self.hit_button.config(state="disabled")
                 self.stand_button.config(state="disabled")
-                self.flip_first_card()  # Call flip_first_card here
+                self.flip_first_card()
         else:
             if self.win_status["dealer"] == "yes" and self.win_status["player"] == "yes":
-                messagebox.showinfo("Push!", "both hands are equal pushed!")
+                messagebox.showinfo("Push!", "Both hands are equal pushed!")
                 self.hit_button.config(state="disabled")
                 self.stand_button.config(state="disabled")
-                self.flip_first_card()  # Call flip_first_card here
+                self.flip_first_card()
             elif self.win_status["player"] == "bust":
                 messagebox.showinfo("Player Bust", f"You Bust, You Lose! {self.p_total}!")
                 self.hit_button.config(state="disabled")
                 self.stand_button.config(state="disabled")
-                self.flip_first_card()  # Call flip_first_card here
+                self.flip_first_card()
+
+        self.update_scores()
 
     def stand(self):
         self.hit_button.config(state="disabled")
         self.stand_button.config(state="disabled")
-        self.flip_first_card()  # Call flip_first_card here
+        self.flip_first_card()
 
-        # Dealer's turn to draw cards until reaching 17 or 21
-        x=True
-        while x:
-            if self.dealer.calculate_score() < 17:
-                self.dealer_hit()
-            else:
-                x=False
-        self.d_total = self.dealer.calculate_score()
-        if self.dealer.calculate_score() >= 17:
-            if self.dealer.calculate_score() < 22:
-                self.check_winner()
+        while self.dealer.calculate_score() < 17:
+            self.dealer_hit()
+        self.update_scores()
+        self.check_winner()
 
     def dealer_hit(self):
-        if self.dealer_spot < 5:
+        if self.dealer_spot < 5 and self.win_status["dealer"] == "no":
             try:
                 dealer_card = self.deck.draw_card()
                 self.dealer.receive_card(dealer_card)
 
                 if self.dealer_spot == 0:
                     self.first_dealer_card = dealer_card
-                    self.dealer_image1 = self.resize_cards(f'images/cards/back_of_card.png')
-                    self.dealer_labels[1].config(image=self.dealer_image1)  # Update the correct label
+                    self.dealer_image1 = self.resize_cards('images/cards/back_of_card.png')
+                    self.dealer_labels[0].config(image=self.dealer_image1)
                     self.dealer_spot += 1
                 else:
                     dealer_image = self.resize_cards(f'images/cards/{dealer_card}.png')
@@ -276,26 +290,47 @@ class BlackjackGame:
                 self.root.title(f'BlackJack - No Cards In Deck')
 
             self.BlackJack_Check("player")
+            self.check_five_cards_winner()
 
     def check_winner(self):
         p_total = self.player.calculate_score()
 
         if p_total == 21:
-            messagebox.showinfo("Player Wins", "Blackjack! You Win!")
+            messagebox.showinfo("Player Wins", "your hand is higher! You Win!")
         elif p_total > 21:
             messagebox.showinfo("Player Bust", f"You Bust, You Lose! {p_total}!")
-        elif self.d_total == 21:
-            messagebox.showinfo("Dealer Wins", "Oh No! Dealer got Blackjack!")
-        elif self.d_total > 21:
+        elif self.dealer.calculate_score() == 21:
+            messagebox.showinfo("Dealer Wins", "Oh No! Dealers hand is better!")
+        elif self.dealer.calculate_score() > 21:
             messagebox.showinfo("Dealer Bust", "Dealer Busts! You Win!")
-        elif self.d_total > p_total:
+        elif self.dealer.calculate_score() > p_total:
             messagebox.showinfo("Dealer Wins", "Dealer has a higher score. You Lose!")
-        elif self.d_total < p_total:
+        elif self.dealer.calculate_score() < p_total:
             messagebox.showinfo("Player Wins", "You have a higher score. You Win!")
         else:
             messagebox.showinfo("Push!", "It's a push! Nobody wins.")
 
-# Create an instance of the BlackjackGame class
+        self.update_scores()
+
+    def update_scores(self):
+        player_score = self.player.calculate_score()
+        self.player_score_label.config(text=f"Score: {player_score}")
+
+        dealer_score = self.dealer.calculate_score()
+        self.dealer_score_label.config(text=f"Score: {dealer_score}")
+
+    def check_five_cards_winner(self):
+        if self.player_spot == 5 and self.player.calculate_score() < 21:
+            messagebox.showinfo("Player Wins", "You have 5 cards and your score is less than 21. You Win!")
+            self.hit_button.config(state="disabled")
+            self.stand_button.config(state="disabled")
+            self.flip_first_card()
+
+# Initialize Tkinter
 root = Tk()
+
+# Create the Blackjack game
 game = BlackjackGame(root)
+
+# Run the Tkinter main loop
 root.mainloop()
