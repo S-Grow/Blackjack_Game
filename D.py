@@ -49,6 +49,7 @@ class TitleScreen:
         self.on_start_game = on_start_game
 
         self.root.title('BlackJack - Title Screen')
+        self.root.eval('tk::PlaceWindow . center')
 
         # Fullscreen
         #self.root.attributes('-fullscreen', True)
@@ -70,6 +71,7 @@ class BlackjackGame:
     def __init__(self, root):
         self.root = root
         self.title_screen = TitleScreen(root, self.setup_game)
+       
 
     def setup_game(self):
         self.root.title('BlackJack')
@@ -80,8 +82,9 @@ class BlackjackGame:
         window_width = int(screen_width * 0.8)
         window_height = int(screen_height * 0.8)
         window_position_x = (screen_width - window_width) // 2
-        window_position_y = (screen_height - window_height) // 2
+        window_position_y = (screen_height - window_height - 50) // 2
         self.root.geometry(f"{window_width}x{window_height}+{window_position_x}+{window_position_y}")
+        
 
         self.root.configure(background="dark green")
 
@@ -250,6 +253,7 @@ class BlackjackGame:
             self.dealer_hit()
         self.update_scores()
         self.check_winner()
+        self.update_dealer_score()
 
     def dealer_hit(self):
         if self.dealer_spot < 5 and self.win_status["dealer"] == "no":
@@ -290,7 +294,8 @@ class BlackjackGame:
                 self.root.title(f'BlackJack - No Cards In Deck')
 
             self.BlackJack_Check("player")
-            self.check_five_cards_winner()
+
+        self.check_five_cards_winner()
 
     def check_winner(self):
         p_total = self.player.calculate_score()
@@ -316,6 +321,10 @@ class BlackjackGame:
         player_score = self.player.calculate_score()
         self.player_score_label.config(text=f"Score: {player_score}")
 
+        dealer_score = self.dealer.calculate_score()
+        self.dealer_score_label.config(text=f"Score: ? + {dealer_score - self.dealer.score[0]}")
+
+    def update_dealer_score(self):
         dealer_score = self.dealer.calculate_score()
         self.dealer_score_label.config(text=f"Score: {dealer_score}")
 
