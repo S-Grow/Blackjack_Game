@@ -44,9 +44,9 @@ class Player:
             self.score[ace_index] = 1
 
 class TitleScreen:
-    def __init__(self, root, on_start_game):
+    def __init__(self, root, on_start_g):
         self.root = root
-        self.on_start_game = on_start_game
+        self.on_start_g = on_start_g
 
         self.root.title('BlackJack - Title Screen')
         self.root.eval('tk::PlaceWindow . center')
@@ -60,18 +60,63 @@ class TitleScreen:
         title_label = Label(self.title_frame, text="BlackJack", font=("Times New Roman", 36, "bold"), bg="dark green", fg="white")
         title_label.pack(pady=20)
 
-        start_button = Button(self.title_frame, text="Start Game", font=("Times New Roman", 18), command=self.start_game)
+        start_button = Button(self.title_frame, text="Place Your Bet", font=("Times New Roman", 18), command=self.start_bet)
         start_button.pack()
 
-    def start_game(self):
+    def start_bet(self):
         self.title_frame.destroy()
-        self.on_start_game()
+        self.on_start_g()
 
-class BlackjackGame:
-    def __init__(self, root):
+class Betting:
+    def __init__(self, root, on_start_game):
         self.root = root
         self.title_screen = TitleScreen(root, self.setup_game)
-       
+        self.on_start_game = on_start_game
+
+    def setup_game(self):
+        self.root.title('BlackJack - Betting')
+        self.root.eval('tk::PlaceWindow . center')
+        self.root.geometry("270x270")
+        self.root.config(background='blue')
+        self.betting_frame = Frame(self.root, bg="blue")
+        self.betting_frame.grid()
+    
+        
+        bet_label = Label(self.betting_frame, text="Betting:", font=("Times New Roman", 24, "bold"), bg="green", fg="white")
+        bet_label.grid(column = 1, pady = 40)
+
+        betinc_button = Button(self.betting_frame, text = "+", font = ("Times New Roman", 18), bg = "green", fg = "white", command = self.inc_bet)
+        betinc_button.grid(row = 3, column = 2, padx = 20)
+
+        betdec_button = Button(self.betting_frame, text="-", font=("Times New Roman", 18), bg="green", fg="white", command = self.dec_bet)
+        betdec_button.grid(row = 3, padx = 20)
+
+        currentbet_label = Label(self.betting_frame, text = (f"Current Bet: $0"), font = ("Times New Roman", 18), bg = "green", fg = "white")
+        currentbet_label.grid()
+
+        start_button = Button(self.betting_frame, text="Start Game", font=("Times New Roman", 18), command=self.start_game)
+        start_button.grid(column = 1, pady = 30)
+    
+    def inc_bet(self):
+        self.current_bet += 10
+        self.update_bet()
+
+    def dec_bet(self):
+        if self.current_bet == 0:
+            pass
+        else:
+            self.current_bet -= 10
+            self.update_bet()
+
+    def update_bet(self):
+        current_bet = self.current_bet
+        self.currentbet_label.config(text=f"Current Bet: ${current_bet}")
+        
+
+class BlackjackGame():
+    def __init__(self, root):
+        self.root = root
+        self.title_screen = Betting(root, self.setup_game)
 
     def setup_game(self):
         self.root.title('BlackJack')
@@ -334,6 +379,10 @@ class BlackjackGame:
             self.hit_button.config(state="disabled")
             self.stand_button.config(state="disabled")
             self.flip_first_card()
+
+
+
+
 
 # Initialize Tkinter
 root = Tk()
