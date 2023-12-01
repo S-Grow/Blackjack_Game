@@ -23,6 +23,7 @@ class Player:
     def receive_card(self, card):
         self.hand.append(card)
         card_value = int(card.split("_", 1)[0])
+        #used to find card value from given name ex. 2_of_clubs
         if card_value == 14:
             self.score.append(11)
         elif 11 <= card_value <= 13:
@@ -32,6 +33,7 @@ class Player:
 
     def calculate_score(self):
         score = sum(self.score)
+        #sums score then checks if ace values need to be changed from 11 to 1
         if score > 21 and 11 in self.score:
             ace_index = self.score.index(11)
             self.score[ace_index] = 1
@@ -122,7 +124,7 @@ class BlackjackGame():
     def setup_game(self):
         self.root.title('BlackJack')
 
-        # Set window size based on screen resolution
+        # Set window size based on screen resolution about 80%
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         window_width = int(screen_width * 0.8)
