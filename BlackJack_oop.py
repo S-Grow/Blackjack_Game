@@ -43,20 +43,94 @@ class Player:
             ace_index = self.score.index(11)
             self.score[ace_index] = 1
 
-class BlackjackGame:
+class TitleScreen:
+    def __init__(self, root, on_start_g):
+        self.root = root
+        self.on_start_g = on_start_g
+
+        self.root.title('BlackJack - Title Screen')
+        self.root.eval('tk::PlaceWindow . center')
+
+        self.title_frame = Frame(self.root, bg="dark green")
+        self.title_frame.pack(expand=True, fill=BOTH)
+
+        title_label = Label(self.title_frame, text="BlackJack", font=("Times New Roman", 36, "bold"), bg="dark green", fg="white")
+        title_label.pack(pady=20)
+
+        start_button = Button(self.title_frame, text="Place Your Bet", font=("Times New Roman", 18), command=self.start_bet)
+        start_button.pack()
+
+    def start_bet(self):
+        self.title_frame.destroy()
+        self.on_start_g()
+
+class Betting:
+    def __init__(self, root, on_start_game):
+        self.root = root
+        self.on_start_game = on_start_game
+        self.current_bet = StringVar()
+        self.current_bet.set("0")
+        self.title_screen = TitleScreen(root, self.setup_game)
+        self.currentbet_label = None
+
+    def setup_game(self):
+        self.root.title('BlackJack - Betting')
+        self.root.eval('tk::PlaceWindow . center')
+        self.root.geometry("315x270")
+        self.root.config(background='blue')
+        self.betting_frame = Frame(self.root, bg="blue")
+        self.betting_frame.grid()
+        
+        bet_label = Label(self.betting_frame, text="Betting:", font=("Times New Roman", 24, "bold"), bg="green", fg="white")
+        bet_label.grid(column = 1, pady = 40)
+
+        betinc_button = Button(self.betting_frame, text = "+", font = ("Times New Roman", 18), bg = "green", fg = "white", command = self.inc_bet)
+        betinc_button.grid(row = 3, column = 2, padx = 20)
+
+        betdec_button = Button(self.betting_frame, text="-", font=("Times New Roman", 18), bg="green", fg="white", command = self.dec_bet)
+        betdec_button.grid(row = 3, padx = 20)
+
+        self.currentbet_label = Label(self.betting_frame, text="Current Bet: $"+self.current_bet.get(), font = ("Times New Roman", 18), bg = "green", fg = "white")
+        self.currentbet_label.grid(row = 3, column = 1, padx = 10)
+
+        start_button = Button(self.betting_frame, text="Start Game", font=("Times New Roman", 18), command=self.start_game)
+        start_button.grid(column = 1, pady = 30)
+    
+    def inc_bet(self):
+        current_value = int(self.current_bet.get())
+        self.current_bet.set(str(current_value + 10))
+        self.update_bet_label()
+        
+    def dec_bet(self):
+        current_value = int(self.current_bet.get())
+        if current_value >= 10:
+            self.current_bet.set(str(current_value - 10))
+            self.update_bet_label()
+
+    def update_bet_label(self):
+        self.currentbet_label.config(text="Current Bet: $"+self.current_bet.get())
+
+    def start_game(self):
+        self.betting_frame.destroy()
+        self.on_start_game()
+
+class BlackjackGame():
     def __init__(self, root):
         self.root = root
+        self.title_screen = Betting(root, self.setup_game)
+
+    def setup_game(self):
         self.root.title('BlackJack')
-        #self.root.geometry("1200x800")
-        #self.root.configure(background="dark green")
-         # Set window size based on screen resolution
+
+        # Set window size based on screen resolution
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         window_width = int(screen_width * 0.8)
         window_height = int(screen_height * 0.8)
         window_position_x = (screen_width - window_width) // 2
-        window_position_y = (screen_height - window_height) // 2
+        window_position_y = (screen_height - window_height - 50) // 2
         self.root.geometry(f"{window_width}x{window_height}+{window_position_x}+{window_position_y}")
+        
 
         self.root.configure(background="dark green")
 
@@ -92,10 +166,10 @@ class BlackjackGame:
 
         self.card_images = []
 
-        self.player_score_label = Label(self.player_frame, text="Score: 0", font=("Times New Roman", 12), bg="dark green", fg="white")
+        self.player_score_label = Label(self.player_frame, text="Score: 0", font=("Times New Roman", 12), bg="white", fg="black")
         self.player_score_label.grid(row=0, column=0, padx=10, pady=10)
 
-        self.dealer_score_label = Label(self.dealer_frame, text=f"Score: 0", font=("Times New Roman", 12), bg="dark green", fg="white")
+        self.dealer_score_label = Label(self.dealer_frame, text=f"Score: 0", font=("Times New Roman", 12), bg="white", fg="black")
         self.dealer_score_label.grid(row=0, column=0, padx=10, pady=10)
 
     def create_buttons(self):
@@ -145,14 +219,13 @@ class BlackjackGame:
         return our_card_image
 
     def update_card_images(self):
-       for i in range(self.dealer_spot):
-        if i == 0 and not self.blackjack_occurred:
-            dealer_image = self.resize_cards('images/cards/back_of_card.png')
-        else:
-            dealer_card = self.dealer.hand[i]
-            dealer_image = self.resize_cards(f'images/cards/{dealer_card}.png')
-        self.dealer_labels[i].config(image=dealer_image)
-
+        for i in range(self.dealer_spot):
+            if i == 0 and not self.blackjack_occurred:
+                dealer_image = self.resize_cards('images/cards/back_of_card.png')
+            else:
+                dealer_card = self.dealer.hand[i]
+                dealer_image = self.resize_cards(f'images/cards/{dealer_card}.png')
+            self.dealer_labels[i].config(image=dealer_image)
 
         for i in range(self.player_spot):
             player_card = self.player.hand[i]
@@ -226,6 +299,7 @@ class BlackjackGame:
             self.dealer_hit()
         self.update_scores()
         self.check_winner()
+        self.update_dealer_score()
 
     def dealer_hit(self):
         if self.dealer_spot < 5 and self.win_status["dealer"] == "no":
@@ -238,8 +312,6 @@ class BlackjackGame:
                     self.dealer_image1 = self.resize_cards('images/cards/back_of_card.png')
                     self.dealer_labels[0].config(image=self.dealer_image1)
                     self.dealer_spot += 1
-
-                
                 else:
                     dealer_image = self.resize_cards(f'images/cards/{dealer_card}.png')
                     self.dealer_labels[self.dealer_spot].config(image=dealer_image)
@@ -268,7 +340,8 @@ class BlackjackGame:
                 self.root.title(f'BlackJack - No Cards In Deck')
 
             self.BlackJack_Check("player")
-            self.check_five_cards_winner()
+
+        self.check_five_cards_winner()
 
     def check_winner(self):
         p_total = self.player.calculate_score()
@@ -288,14 +361,16 @@ class BlackjackGame:
         else:
             messagebox.showinfo("Push!", "It's a push! Nobody wins.")
 
-       
         self.update_scores()
 
     def update_scores(self):
         player_score = self.player.calculate_score()
         self.player_score_label.config(text=f"Score: {player_score}")
 
-        
+        dealer_score = self.dealer.calculate_score()
+        self.dealer_score_label.config(text=f"Score: ? + {dealer_score - self.dealer.score[0]}")
+
+    def update_dealer_score(self):
         dealer_score = self.dealer.calculate_score()
         self.dealer_score_label.config(text=f"Score: {dealer_score}")
 
@@ -306,6 +381,11 @@ class BlackjackGame:
             self.stand_button.config(state="disabled")
             self.flip_first_card()
 
+# Initialize Tkinter
 root = Tk()
+
+# Create the Blackjack game
 game = BlackjackGame(root)
+
+# Run the Tkinter main loop
 root.mainloop()
